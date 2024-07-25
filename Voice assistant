@@ -1,0 +1,58 @@
+import speech_recognition as sr
+import pyttsx3
+import datetime
+import webbrowser
+import pyaudio
+from distutils.version import LooseVersion
+def speak(text):
+    """
+    Uses text-to-speech to speak the given text.
+    """
+    engine = pyttsx3.init()
+    engine.say(text)
+    engine.runAndWait()
+
+def get_voice_command():
+    """
+    Listens for a voice command and returns it as text.
+    """
+    recognizer = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listening for a command...")
+        recognizer.adjust_for_ambient_noise(source)
+        audio = recognizer.listen(source)
+
+    try:
+        command = recognizer.recognize_google(audio)
+        print(f"User said: {command}")
+        return command.lower()
+    except sr.UnknownValueError:
+        print("Sorry, I didn't catch that. Please try again.")
+        return ""
+
+def main():
+    speak("Hello! I'm your voice assistant. How can I assist you today?")
+    while True:
+        command = get_voice_command()
+
+        if "hello" in command:
+            speak("Hello! How can I help you?")
+        elif "time" in command:
+            current_time = datetime.datetime.now().strftime("%H:%M")
+            speak(f"The current time is {current_time}.")
+        elif "date" in command:
+            current_date = datetime.datetime.now().strftime("%B %d, %Y")
+            speak(f"Today's date is {current_date}.")
+        elif "search" in command:
+            speak("What would you like me to search for?")
+            search_query = get_voice_command()
+            webbrowser.open(f"https://www.google.com/search?q={search_query}")
+            speak(f"Here are the search results for {search_query}.")
+        elif "exit" in command:
+            speak("Goodbye!")
+            break
+        else:
+            speak("I'm sorry, I didn't understand that command.")
+
+if __name__ == "__main__":
+    main()
